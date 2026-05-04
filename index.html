@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI &amp; KPI Framework — Course Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue:#0A3B85; --blue-mid:#1a52a8; --blue-light:#e8eef8;
+  --dark:#051C2B; --teal:#00A3AD; --gold:#FFCC00; --orange:#ED8B00;
+  --green:#00875a; --bg:#f4f7fb; --surface:#fff; --border:#dce3ef;
+  --muted:#5a6a82; --muted-light:#8a9bb5;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--dark);font-family:'Source Sans 3',sans-serif;min-height:100vh;display:flex;flex-direction:column;}
+
+/* HEADER */
+.site-header-img{width:100%;display:block;flex-shrink:0;line-height:0;}
+.header-img{width:100%;display:block;height:auto;}
+
+/* PAGES */
+#page-landing{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 80px);padding:60px 24px;}
+#page-kpi{display:none;flex-direction:column;}
+
+/* LANDING */
+.landing-kicker{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-bottom:14px;text-align:center;}
+.landing-title{font-family:'Merriweather',serif;font-size:clamp(22px,3.5vw,36px);font-weight:700;color:var(--blue);margin-bottom:10px;text-align:center;line-height:1.25;}
+.landing-sub{font-size:15px;color:var(--muted);font-weight:300;line-height:1.7;max-width:500px;margin:0 auto 40px;text-align:center;}
+.reg-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px 44px;box-shadow:0 4px 32px rgba(10,59,133,.09);width:100%;max-width:480px;}
+.field-row{margin-bottom:16px;}
+.field-row label{display:block;font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.12em;margin-bottom:7px;}
+.field-row label .req{color:#c0392b;margin-left:2px;}
+.field-row label .opt{color:var(--muted-light);font-weight:400;text-transform:none;letter-spacing:0;margin-left:4px;font-size:11px;}
+.field-row input,.field-row select{width:100%;padding:11px 14px;border:2px solid var(--border);border-radius:8px;font-family:'Source Sans 3',sans-serif;font-size:14px;color:var(--dark);background:#fff;transition:border-color .2s;}
+.field-row select{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230A3B85' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 14px center;appearance:none;cursor:pointer;}
+.field-row input:focus,.field-row select:focus{outline:none;border-color:var(--blue);}
+.field-row input.error{border-color:#c0392b;}
+.email-hint{font-size:12px;color:#c0392b;margin-top:5px;display:none;}
+.go-btn{margin-top:6px;width:100%;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:'Source Sans 3',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s;}
+.go-btn:hover:not(:disabled){background:var(--blue-mid);}
+.go-btn:disabled{opacity:.35;cursor:not-allowed;}
+
+/* KPI PAGE */
+.kpi-wrap{max-width:1180px;margin:0 auto;width:100%;padding:40px 28px 80px;}
+.kpi-topbar{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:32px;}
+.back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--blue);background:none;border:1px solid var(--border);border-radius:6px;padding:7px 14px;cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:background .2s;}
+.back-btn:hover{background:var(--blue-light);border-color:var(--blue);}
+.kpi-eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin-bottom:8px;}
+.kpi-title{font-family:'Merriweather',serif;font-size:clamp(18px,2.8vw,28px);font-weight:700;color:var(--blue);line-height:1.2;}
+.kpi-meta{font-size:13px;color:var(--muted);font-weight:300;margin-top:6px;line-height:1.6;}
+.attendee-pill{display:inline-flex;align-items:center;gap:8px;background:var(--blue-light);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:13px;color:var(--blue);font-weight:600;}
+
+/* DEPT SECTIONS */
+.dept-section{margin-bottom:0.5rem;}
+.dept-header{display:flex;align-items:center;gap:10px;margin-bottom:1rem;padding-bottom:8px;border-bottom:2px solid var(--border);}
+.dept-dot{width:10px;height:10px;border-radius:50%;background:var(--blue);flex-shrink:0;}
+.dept-label{font-family:'Merriweather',serif;font-size:16px;font-weight:700;color:var(--blue);}
+.dept-count{font-size:12px;color:var(--muted-light);}
+
+/* KPI CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-bottom:18px;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+.kpi-card:hover{border-color:#b0bfd8;box-shadow:0 2px 12px rgba(10,59,133,.07);}
+.kpi-card.open{border-color:var(--blue);box-shadow:0 2px 16px rgba(10,59,133,.1);}
+.kpi-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.kpi-name{font-size:13.5px;font-weight:600;color:var(--dark);line-height:1.4;}
+.kpi-chevron{font-size:10px;color:var(--muted-light);flex-shrink:0;margin-top:3px;transition:transform .15s;}
+.kpi-card.open .kpi-chevron{transform:rotate(180deg);}
+.kpi-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;}
+.badge{font-size:11px;padding:2px 9px;border-radius:10px;font-weight:600;}
+.badge-roi-fin{background:#ddeeff;color:#0c447c;}
+.badge-roi-ops{background:#ddf0e3;color:#1a6b3a;}
+.badge-roi-str{background:#ece9fc;color:#3c3489;}
+.badge-diff-easy{background:#d6f0dc;color:#1a6b3a;}
+.badge-diff-med{background:#fef0d6;color:#8a4d00;}
+.badge-diff-hard{background:#fde8e3;color:#8b2500;}
+.kpi-details{display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
+.kpi-card.open .kpi-details{display:block;}
+.det-row{display:grid;grid-template-columns:100px 1fr;gap:4px 12px;margin-bottom:8px;font-size:12.5px;}
+.det-label{color:var(--muted-light);padding-top:1px;font-size:12px;}
+.det-val{color:var(--muted);line-height:1.55;}
+.det-val.strong{color:var(--dark);font-weight:600;}
+.ai-row{margin-top:10px;padding:10px 12px;background:var(--blue-light);border-left:3px solid var(--blue);border-radius:0 6px 6px 0;}
+.ai-row-lbl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:4px;}
+.ai-row-body{font-size:12.5px;color:var(--dark);}
+.ai-row-body strong{color:var(--blue);}
+
+/* NOTES PER FUNCTION */
+.fn-notes{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:0 10px 10px 0;padding:18px 22px;margin-bottom:2.5rem;}
+.fn-notes-title{font-size:12px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
+.fn-notes-hint{font-size:12.5px;color:var(--muted);margin-bottom:10px;font-weight:300;line-height:1.6;}
+.fn-notes-area{width:100%;min-height:80px;padding:10px 12px;border:2px solid var(--border);border-radius:7px;font-family:'Source Sans 3',sans-serif;font-size:13px;color:var(--dark);background:#fafbfd;resize:vertical;transition:border-color .2s;line-height:1.6;}
+.fn-notes-area:focus{outline:none;border-color:var(--teal);background:#fff;}
+.fn-notes-area::placeholder{color:#b0bfd8;}
+
+/* ACTION BAR */
+.action-bar{background:var(--surface);border-top:1px solid var(--border);padding:18px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;position:sticky;bottom:0;z-index:100;box-shadow:0 -4px 20px rgba(10,59,133,.06);}
+.action-attendee{font-size:13px;color:var(--muted);}
+.action-attendee strong{color:var(--dark);}
+.action-btns{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.btn-save{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;background:#fff;border:1.5px solid var(--blue);border-radius:8px;font-family:'Source Sans 3',sans-serif;font-size:13.5px;font-weight:600;color:var(--blue);cursor:pointer;transition:background .15s;}
+.btn-save:hover{background:var(--blue-light);}
+.btn-submit{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;background:var(--blue);border:1.5px solid var(--blue);border-radius:8px;font-family:'Source Sans 3',sans-serif;font-size:13.5px;font-weight:600;color:#fff;cursor:pointer;transition:background .15s;}
+.btn-submit:hover{background:var(--blue-mid);}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;}
+.submit-status{font-size:12px;margin-top:4px;}
+.submit-status.ok{color:var(--green);}
+.submit-status.err{color:#c0392b;}
+
+/* FOOTER */
+.site-footer{background:var(--blue);padding:18px 40px;display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:auto;}
+.footer-copy{font-size:11.5px;color:rgba(255,255,255,.55);}
+.footer-copy strong{color:rgba(255,255,255,.85);}
+
+@media print{
+  .site-header-img,.action-bar,.site-footer,.back-btn{display:none!important;}
+  body{background:#fff;}
+  .kpi-card{break-inside:avoid;}
+  .kpi-details{display:block!important;}
+  .kpi-chevron{display:none;}
+  .fn-notes{break-inside:avoid;}
+}
+@media(max-width:600px){
+  .kpi-wrap{padding:24px 16px 80px;}
+  .reg-card{padding:28px 20px;}
+  .kpi-grid{grid-template-columns:1fr;}
+  .action-bar{padding:14px 16px;}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header-img">
+  <img src="data:image/png;base64,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" alt="Henley Business School" class="header-img">
+</header>
+
+<!-- LANDING -->
+<div id="page-landing">
+  <p class="landing-kicker">Course Tool</p>
+  <h1 class="landing-title">KPI Framework<br>with AI Initiative Opportunities</h1>
+  <p class="landing-sub">Select your industry to explore KPIs calibrated to your sector, each paired with a practical AI initiative opportunity.</p>
+  <div class="reg-card">
+    <div class="field-row">
+      <label>Email address <span class="req">*</span></label>
+      <input type="email" id="fEmail" placeholder="you@organisation.com" autocomplete="email">
+      <div class="email-hint" id="emailHint">Please enter a valid email address.</div>
+    </div>
+    <div class="field-row">
+      <label>Full name <span class="opt">(optional)</span></label>
+      <input type="text" id="fName" placeholder="Your name" autocomplete="name">
+    </div>
+    <div class="field-row">
+      <label>Organisation <span class="opt">(optional)</span></label>
+      <input type="text" id="fCompany" placeholder="Your company or organisation" autocomplete="organization">
+    </div>
+    <div class="field-row">
+      <label>Industry <span class="req">*</span></label>
+      <select id="fIndustry">
+        <option value="">— Select your industry —</option>
+        <option value="appliance">Appliance / Consumer Electronics Retail</option>
+        <option value="charity">Charity</option>
+        <option value="coaching">Coaching, Search &amp; Business Services</option>
+        <option value="insurance">Insurance</option>
+      </select>
+    </div>
+    <button class="go-btn" id="goBtn" disabled onclick="startTool()">View my KPI Framework →</button>
+  </div>
+</div>
+
+<!-- KPI PAGE -->
+<div id="page-kpi">
+  <div class="kpi-wrap">
+    <div class="kpi-topbar">
+      <div>
+        <p class="kpi-eyebrow">KPI Framework — AI Initiative Opportunities</p>
+        <h2 class="kpi-title" id="kpiTitle"></h2>
+        <p class="kpi-meta" id="kpiMeta"></p>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+        <button class="back-btn" onclick="goBack()">← Back</button>
+        <div class="attendee-pill" id="attendeePill"></div>
+      </div>
+    </div>
+    <div id="kpiContent"></div>
+  </div>
+  <div class="action-bar">
+    <div class="action-attendee" id="actionAttendee"></div>
+    <div>
+      <div class="action-btns">
+        <button class="btn-save" onclick="saveReport()">⬇ Save / Report</button>
+        <button class="btn-submit" id="submitBtn" onclick="submitToSheets()">↑ Submit to Google Sheets</button>
+      </div>
+      <div class="submit-status" id="submitStatus"></div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <span class="footer-copy">© <strong>Andrew Gaule &amp; Denis Bidinost</strong> &nbsp;|&nbsp; Henley Business School, University of Reading</span>
+</footer>
+
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCviL2LfasJXR1JD_LqrgbduSTz_Utq6qeUu1GWfb9nJYcDUbeNyLE6Da3i-y_bn0SuA/exec';
+
+
+const INDUSTRIES = {
+
+  // ── APPLIANCE / CONSUMER ELECTRONICS RETAIL ──────────────────────────────
+  appliance: {
+    label: 'Appliance / Consumer Electronics Retail',
+    desc: '30 KPIs across Sales, Marketing, HR, Finance and Operations — calibrated for appliance and consumer electronics retailers.',
+    depts: [
+      { name:'Sales', kpis:[
+        { name:'Store / channel conversion rate', formula:'Transactions / Total footfall or unique sessions', target:'In-store benchmark 20–30%; e-commerce 2–4%; track by channel', measurement:'POS + footfall counter or web analytics', roiType:'Financial', difficulty:'Easy', aiTitle:'AI product recommendation engine', aiDesc:'Personalises product suggestions in-store (via staff tablet) and online based on intent signals and purchase history, lifting conversion rate.' },
+        { name:'Average transaction value (ATV)', formula:'Total revenue / Number of transactions', target:'Track trend; 8–12% uplift via attachment selling and upsell', measurement:'POS or e-commerce platform', roiType:'Financial', difficulty:'Easy', aiTitle:'AI upsell & accessory attachment', aiDesc:'Suggests complementary products and protection plans at checkout, trained on purchase affinity data to increase basket value.' },
+        { name:'Customer repeat purchase rate', formula:'Customers with >1 purchase in 12 months / Total active customers', target:'Target >35%; electronics retail benchmark 25–40%', measurement:'CRM or loyalty platform cohort analysis', roiType:'Strategic', difficulty:'Medium', aiTitle:'Predictive customer lifecycle management', aiDesc:'Forecasts each customer\'s next likely purchase window and triggers personalised re-engagement at the optimal moment.' },
+        { name:'Return & refund rate', formula:'Number of returns / Total units sold × 100', target:'Benchmark 5–10% for electronics; sustained increases warrant investigation', measurement:'Returns management system or POS refund log', roiType:'Operational', difficulty:'Easy', aiTitle:'AI returns prediction & pre-emption', aiDesc:'Identifies high-return-risk transactions and triggers proactive post-sale outreach to resolve issues before a return is initiated.' },
+        { name:'Protection plan attach rate', formula:'Protection plans sold / Total eligible units sold × 100', target:'Top performers achieve 40–60%; significant revenue and margin contribution', measurement:'POS system protection plan SKU tracking', roiType:'Financial', difficulty:'Easy', aiTitle:'AI protection plan propensity scoring', aiDesc:'Scores each transaction by likelihood to convert on a protection plan and prompts staff with the most effective offer framing.' },
+        { name:'Net Promoter Score (NPS)', formula:'% Promoters (9–10) minus % Detractors (0–6)', target:'Retail benchmark 40–60; track trend quarterly', measurement:'Post-purchase survey triggered by email or SMS', roiType:'Strategic', difficulty:'Easy', aiTitle:'NLP-powered feedback analysis', aiDesc:'Automatically categorises free-text responses by theme and sentiment, surfacing the key drivers of detractor scores for operational action.' },
+        { name:'Sales per employee', formula:'Total revenue / Total headcount', target:'Track trend YoY; productivity uplift reflects better use of staff time', measurement:'Finance + HR systems combined', roiType:'Financial', difficulty:'Easy', aiTitle:'AI-assisted sales coaching', aiDesc:'Analyses individual sales performance data and surfaces coaching recommendations to managers, improving team-wide productivity.' },
+      ]},
+      { name:'Marketing', kpis:[
+        { name:'Customer acquisition cost (CAC)', formula:'Total marketing spend / New customers acquired', target:'Track CAC:LTV ratio; healthy ratio is 1:3 or better', measurement:'Marketing platform + CRM first-purchase attribution', roiType:'Financial', difficulty:'Medium', aiTitle:'AI media buying & audience targeting', aiDesc:'Continuously optimises paid media allocation using real-time performance data, reducing cost per acquired customer across channels.' },
+        { name:'Email campaign revenue contribution', formula:'Revenue attributed to email / Total revenue × 100', target:'Benchmark 15–25% of e-commerce revenue from email', measurement:'Email platform with e-commerce attribution', roiType:'Financial', difficulty:'Medium', aiTitle:'AI send-time optimisation & personalisation', aiDesc:'Determines the optimal send time per subscriber and personalises content blocks by purchase history and category affinity.' },
+        { name:'Promotional ROI', formula:'(Incremental revenue from promotion – Promotion cost) / Promotion cost', target:'Track by campaign; any ratio below 1:1 should trigger review', measurement:'Finance + marketing platform with promotion tagging', roiType:'Financial', difficulty:'Medium', aiTitle:'AI promotional effectiveness forecasting', aiDesc:'Predicts the incremental revenue impact of planned promotions before launch, enabling spend reallocation to the highest-ROI mechanics.' },
+        { name:'Brand sentiment score', formula:'% positive mentions / (positive + negative mentions) across monitored channels', target:'Track trend monthly; target sustained improvement', measurement:'Social listening tool (Brandwatch, Mention, etc.)', roiType:'Strategic', difficulty:'Medium', aiTitle:'NLP sentiment monitoring & alerting', aiDesc:'Scans social, review and news channels for brand mentions, alerting the team immediately to emerging sentiment shifts.' },
+        { name:'Customer lifetime value (CLV)', formula:'Average purchase value × purchase frequency × average customer lifespan', target:'Track trend; CLV:CAC ratio should be >3:1', measurement:'CRM + billing system cohort analysis over 12–24 months', roiType:'Strategic', difficulty:'Hard', aiTitle:'Predictive CLV modelling', aiDesc:'ML model forecasts each customer\'s lifetime value from early purchase signals, enabling differentiated investment in retention.' },
+        { name:'Category cross-sell rate', formula:'Customers purchasing across >1 product category / Total customers × 100', target:'Track trend; cross-category buyers have significantly higher CLV', measurement:'POS or CRM purchase data by category', roiType:'Financial', difficulty:'Medium', aiTitle:'AI cross-category recommendation', aiDesc:'Identifies customers with high affinity for adjacent categories and triggers targeted campaigns at the right point in their purchase cycle.' },
+      ]},
+      { name:'HR', kpis:[
+        { name:'Staff turnover rate', formula:'Leavers in period / Average headcount × 100', target:'Retail benchmark 25–40% annually; target steady reduction YoY', measurement:'HRIS leaver records by role and location', roiType:'Strategic', difficulty:'Easy', aiTitle:'Attrition risk prediction', aiDesc:'Flags at-risk employees based on tenure, engagement scores, absence patterns and seasonal demand signals, enabling early retention conversations.' },
+        { name:'Time-to-productive (new hire)', formula:'Days from start date to meeting first performance milestone', target:'Target <30 days for frontline retail roles', measurement:'Manager assessment + POS performance data by new hire', roiType:'Operational', difficulty:'Medium', aiTitle:'AI-personalised onboarding & product training', aiDesc:'Adapts the onboarding path by role, product category and individual pace, accelerating product knowledge and sales confidence.' },
+        { name:'Training completion rate', formula:'Employees completing assigned training / Total assigned × 100', target:'Target >85%; compliance gaps create regulatory and safety exposure', measurement:'LMS completion logs', roiType:'Operational', difficulty:'Easy', aiTitle:'Personalised learning path automation', aiDesc:'Assigns and sequences training content based on role, skill gaps and performance data, improving relevance and completion rates.' },
+        { name:'Absenteeism rate', formula:'Days absent / Total contracted working days × 100', target:'Benchmark 3–5%; peaks in Q4 (retail) require active management', measurement:'HRIS attendance records', roiType:'Operational', difficulty:'Easy', aiTitle:'Absence pattern & wellbeing flagging', aiDesc:'Identifies emerging absence trends by store, team or individual and prompts proactive manager conversations before issues escalate.' },
+        { name:'Internal promotion rate', formula:'Vacancies filled internally / Total vacancies filled × 100', target:'Track trend; higher rates reduce external hiring cost and signal talent pipeline health', measurement:'HRIS job change records', roiType:'Strategic', difficulty:'Easy', aiTitle:'AI talent mapping & succession planning', aiDesc:'Identifies internal candidates with the skills and potential to fill open roles and surfaces development actions to close gaps ahead of need.' },
+        { name:'Cost-per-hire', formula:'Total recruiting cost / Total hires in period', target:'Track trend; reduction reflects improved sourcing efficiency', measurement:'Finance + HR: agency fees, job board spend, recruiter time', roiType:'Financial', difficulty:'Medium', aiTitle:'AI sourcing & job advertising optimisation', aiDesc:'Dynamically allocates job board spend to best-performing channels and generates job descriptions that attract higher-quality applicants.' },
+      ]},
+      { name:'Finance', kpis:[
+        { name:'Gross margin %', formula:'(Revenue – COGS) / Revenue × 100', target:'Consumer electronics benchmark 28–38%; track by category and channel', measurement:'Finance or ERP system by product category', roiType:'Financial', difficulty:'Easy', aiTitle:'AI dynamic pricing optimisation', aiDesc:'Adjusts prices in real time based on competitor signals, demand patterns and inventory levels to protect margin without sacrificing volume.' },
+        { name:'Inventory days on hand', formula:'(Average inventory value / COGS) × days in period', target:'Target 30–45 days; >60 days signals overstock and obsolescence risk', measurement:'ERP inventory module', roiType:'Financial', difficulty:'Medium', aiTitle:'AI demand forecasting & automated replenishment', aiDesc:'Forecasts SKU-level demand using sales history, seasonality and promotions to drive replenishment and reduce both overstock and stockouts.' },
+        { name:'Shrinkage rate', formula:'Inventory variance (book vs physical count) / Total inventory value × 100', target:'Benchmark 1–2% of revenue; any sustained increase warrants investigation', measurement:'Stock count reconciliation vs ERP records', roiType:'Financial', difficulty:'Medium', aiTitle:'AI loss prevention & transaction anomaly detection', aiDesc:'Analyses POS transaction patterns to identify theft, process errors or supplier discrepancies contributing to shrinkage.' },
+        { name:'Operating expense ratio', formula:'Total operating expenses / Total revenue × 100', target:'Track trend; aim for consistent reduction as revenue grows', measurement:'P&L from finance system segmented by cost category', roiType:'Financial', difficulty:'Easy', aiTitle:'AI spend analytics & cost optimisation', aiDesc:'Categorises operational spend, identifies duplicate or off-contract purchasing, and surfaces supplier renegotiation opportunities.' },
+        { name:'Days Sales Outstanding (DSO)', formula:'(Accounts receivable / Revenue) × days in period', target:'Track trend; rising DSO signals collection or credit issues', measurement:'ERP aged debtor report', roiType:'Financial', difficulty:'Easy', aiTitle:'AI collections prioritisation', aiDesc:'Scores receivables by payment risk and overdue days, and generates personalised reminder sequences to accelerate cash collection.' },
+        { name:'Cash conversion cycle (CCC)', formula:'Inventory days + DSO – Days Payable Outstanding', target:'Track trend; reduction improves liquidity and reduces financing cost', measurement:'ERP: AR, AP and inventory modules combined', roiType:'Financial', difficulty:'Hard', aiTitle:'AI rolling cash flow forecasting', aiDesc:'Integrates AR, AP, inventory and sales data to produce a rolling short-term cash forecast that updates automatically.' },
+      ]},
+      { name:'Operations', kpis:[
+        { name:'On-shelf availability rate', formula:'SKUs available for sale / Total SKUs × 100 at point of check', target:'Target >97%; gaps directly translate to lost sales', measurement:'Manual audits, POS out-of-stock flags or IoT shelf sensors', roiType:'Operational', difficulty:'Hard', aiTitle:'AI replenishment & out-of-stock prediction', aiDesc:'Predicts out-of-stock events before they occur using sales velocity and stock data, triggering automatic replenishment actions.' },
+        { name:'Order fulfilment cycle time', formula:'Average days from order placed to delivery confirmed', target:'Track trend; faster fulfilment drives satisfaction and repeat purchase', measurement:'OMS or logistics platform order timestamps', roiType:'Operational', difficulty:'Easy', aiTitle:'AI logistics routing & fulfilment optimisation', aiDesc:'Optimises order routing across fulfilment nodes and carrier selection to minimise delivery time and cost.' },
+        { name:'Customer complaint resolution time', formula:'Average hours from complaint received to resolution confirmed', target:'Target <24h for tier-1; <5 days for complex cases', measurement:'CRM or service platform ticket timestamps', roiType:'Operational', difficulty:'Easy', aiTitle:'AI complaint triage & auto-resolution', aiDesc:'Classifies complaints by type and urgency, auto-resolves simple cases and routes complex issues to the right team with full context.' },
+        { name:'After-sales first-fix rate', formula:'Service calls resolved on first visit / Total service calls × 100', target:'Target >80%; higher rates reduce cost-to-serve and improve satisfaction', measurement:'Field service management system', roiType:'Operational', difficulty:'Medium', aiTitle:'AI fault diagnosis & parts pre-positioning', aiDesc:'Uses product fault data and customer history to diagnose the likely issue before the visit and ensure the engineer carries the right parts.' },
+        { name:'Supplier on-time delivery rate', formula:'POs delivered on agreed date / Total POs × 100', target:'Track trend; below-target rates create operational and stock risk', measurement:'ERP purchase order receipts vs confirmed delivery dates', roiType:'Operational', difficulty:'Easy', aiTitle:'AI supplier performance monitoring', aiDesc:'Tracks supplier delivery performance in real time and flags at-risk orders early, enabling proactive mitigation before stock gaps occur.' },
+        { name:'Energy cost per transaction', formula:'Total energy cost / Number of transactions in period', target:'Track trend; reduction reflects operational efficiency and sustainability progress', measurement:'Utility billing + transaction volume from POS', roiType:'Financial', difficulty:'Medium', aiTitle:'AI energy scheduling & consumption optimisation', aiDesc:'Analyses trading patterns and tariff structures to schedule HVAC and lighting optimally, reducing energy cost per unit of output.' },
+      ]},
+    ]
+  },
+
+  // ── CHARITY ───────────────────────────────────────────────────────────────
+  charity: {
+    label: 'Charity',
+    desc: '30 KPIs across Fundraising, Marketing & Engagement, HR & Volunteering, Finance and Programme Delivery — calibrated for charitable organisations.',
+    depts: [
+      { name:'Fundraising', kpis:[
+        { name:'Donor retention rate', formula:'Donors giving in both current and prior year / Prior year donors × 100', target:'Sector average 40–50%; top performers >60%; improvement directly compounds income', measurement:'Fundraising CRM (Salesforce NPSP, Raiser\'s Edge, Donorfy)', roiType:'Financial', difficulty:'Easy', aiTitle:'Lapsed donor re-engagement model', aiDesc:'Scores lapsed donors by re-engagement likelihood based on giving history and communication response, enabling prioritised personalised outreach.' },
+        { name:'Average gift value', formula:'Total donation revenue / Number of donations in period', target:'Track trend; improvement via upgrade campaigns and matched giving mechanics', measurement:'Fundraising CRM or online donation platform', roiType:'Financial', difficulty:'Easy', aiTitle:'AI gift upgrade prompting', aiDesc:'Identifies the optimal upgrade ask amount for each donor based on giving history, capacity signals and cohort benchmarks.' },
+        { name:'Cost of fundraising ratio', formula:'Total fundraising expenditure / Total funds raised × 100', target:'Benchmark 15–25 pence per £1 raised; lower is better', measurement:'Finance system: fundraising cost centre vs total income', roiType:'Financial', difficulty:'Medium', aiTitle:'AI channel attribution & spend optimisation', aiDesc:'Accurately attributes income to each channel and reallocates spend toward the activities generating the highest net income.' },
+        { name:'Regular giving attrition rate', formula:'Regular givers cancelled in period / Total regular givers at start × 100', target:'Track trend; reduction directly protects predictable unrestricted income', measurement:'Fundraising CRM or direct debit management system', roiType:'Financial', difficulty:'Easy', aiTitle:'Regular giving cancellation prediction', aiDesc:'Identifies regular givers at cancellation risk based on payment behaviour and communication engagement, triggering proactive retention calls.' },
+        { name:'Major donor pipeline value', formula:'Total estimated value of active major donor prospects in pipeline', target:'Track trend; growth is a leading indicator of future major gift income', measurement:'Major donor CRM or prospect management system', roiType:'Strategic', difficulty:'Medium', aiTitle:'AI prospect research & wealth screening', aiDesc:'Automates prospect identification and wealth signal analysis, helping major donor teams build and prioritise their pipelines efficiently.' },
+        { name:'Legacy pipeline value', formula:'Estimated value of confirmed and probable legacy pledges in pipeline', target:'Track trend; legacies represent 30–40% of income for established charities', measurement:'CRM legacy module or dedicated legacy tracking records', roiType:'Strategic', difficulty:'Hard', aiTitle:'Predictive legacy prospect identification', aiDesc:'Identifies donors with high legacy potential based on tenure, age, engagement depth and wealth signals for proactive legacy conversations.' },
+        { name:'New donor acquisition cost', formula:'Total acquisition spend / New donors acquired', target:'Track payback period; aim for break-even within 18 months of first gift', measurement:'Marketing platform + CRM first-gift attribution', roiType:'Financial', difficulty:'Medium', aiTitle:'AI lookalike audience targeting', aiDesc:'Builds lookalike profiles from existing high-value donors to improve digital acquisition targeting and reduce cost per new donor.' },
+      ]},
+      { name:'Marketing & Engagement', kpis:[
+        { name:'Email engagement rate', formula:'(Opens + Clicks) / Emails delivered × 100', target:'Charity sector benchmark: open rate 25–35%; click rate 3–5%', measurement:'Email marketing platform analytics', roiType:'Operational', difficulty:'Easy', aiTitle:'AI content personalisation & send-time optimisation', aiDesc:'Tailors email content and subject lines by supporter segment and finds the optimal send time for each individual to maximise engagement.' },
+        { name:'Social media reach & engagement rate', formula:'Total engagements / Total followers × 100 per post', target:'Track trend; sector benchmark engagement rate 2–5% on key platforms', measurement:'Native platform analytics or social media management tool', roiType:'Operational', difficulty:'Easy', aiTitle:'AI content generation & scheduling optimisation', aiDesc:'Generates draft social content aligned to campaign themes and identifies the optimal posting time and format for each platform.' },
+        { name:'Brand sentiment score', formula:'% positive mentions / (positive + negative mentions) across monitored channels', target:'Track trend monthly; >70% positive sentiment target', measurement:'Social listening tool or manual monitoring', roiType:'Strategic', difficulty:'Medium', aiTitle:'NLP sentiment monitoring & issue alerting', aiDesc:'Continuously scans social, news and review channels for brand mentions, alerting the team to reputational risks in real time.' },
+        { name:'Supporter lifetime value (SLV)', formula:'Average total giving over supporter relationship lifespan', target:'Track trend by acquisition channel; higher SLV channels deserve greater investment', measurement:'CRM cohort analysis over 3–5 years', roiType:'Strategic', difficulty:'Hard', aiTitle:'Predictive SLV modelling', aiDesc:'ML model forecasts each supporter\'s lifetime value from early giving and engagement signals, enabling differentiated retention investment.' },
+        { name:'Campaign response rate', formula:'Responses to campaign (donations, actions, sign-ups) / Total contacts reached × 100', target:'Track trend by campaign type and channel; improvement reflects relevance and targeting quality', measurement:'CRM or campaign management platform', roiType:'Financial', difficulty:'Medium', aiTitle:'AI campaign audience segmentation', aiDesc:'Builds micro-segments based on supporter behaviour and propensity, improving campaign targeting and lifting response rates.' },
+        { name:'Volunteer enquiry conversion rate', formula:'New volunteer registrations / Total volunteer enquiries × 100', target:'Target >60%; low rates indicate process or communication friction', measurement:'Volunteer management system or CRM', roiType:'Operational', difficulty:'Medium', aiTitle:'AI volunteer matching & onboarding automation', aiDesc:'Matches enquirers to suitable roles based on skills and availability and automates the onboarding journey to reduce drop-off.' },
+      ]},
+      { name:'HR & Volunteering', kpis:[
+        { name:'Volunteer retention rate', formula:'Active volunteers still engaged after 12 months / Total recruited × 100', target:'Benchmark 60–70%; target improvement of 5pp YoY', measurement:'Volunteer management system or CRM', roiType:'Strategic', difficulty:'Medium', aiTitle:'Volunteer engagement personalisation', aiDesc:'Matches volunteers to roles aligned to their skills, motivations and availability, increasing satisfaction and long-term retention.' },
+        { name:'Staff turnover rate', formula:'Staff leavers in period / Average headcount × 100', target:'Charity sector benchmark 18–25%; target <18%', measurement:'HRIS leaver records by team and role type', roiType:'Strategic', difficulty:'Easy', aiTitle:'Attrition risk prediction model', aiDesc:'Identifies at-risk employees using engagement data, tenure, role type and absence patterns, enabling early retention conversations.' },
+        { name:'Time-to-hire', formula:'Average days from role posted to offer accepted', target:'Target <35 days; sector benchmark 35–50 days', measurement:'ATS timestamps from post to offer accepted', roiType:'Operational', difficulty:'Easy', aiTitle:'AI CV screening & shortlisting', aiDesc:'Automates candidate scoring against role criteria, reducing manual review time and accelerating time to interview for hard-to-fill roles.' },
+        { name:'Training compliance rate', formula:'Staff completing mandatory training / Total staff required × 100', target:'Target 100%; safeguarding and compliance gaps create serious legal exposure', measurement:'LMS completion records', roiType:'Operational', difficulty:'Easy', aiTitle:'AI-personalised training pathway assignment', aiDesc:'Assigns and tracks mandatory and development training by role and compliance status, automating escalation reminders for non-completion.' },
+        { name:'Volunteer hours contributed', formula:'Total volunteering hours logged in period', target:'Track trend; hours are a measure of community engagement and programme delivery capacity', measurement:'Volunteer management system time logging', roiType:'Strategic', difficulty:'Easy', aiTitle:'AI volunteer scheduling & deployment optimisation', aiDesc:'Matches volunteer availability and skills to programme needs in real time, maximising the productive hours contributed each period.' },
+        { name:'Cost-per-hire', formula:'Total recruiting cost / Total hires in period', target:'Track trend; reduction reflects improved sourcing and process efficiency', measurement:'Finance + HR: agency fees, job board spend, recruiter time', roiType:'Financial', difficulty:'Medium', aiTitle:'AI job advertising & sourcing optimisation', aiDesc:'Allocates job board spend to best-performing channels and generates compelling job descriptions that attract higher-quality applicants.' },
+      ]},
+      { name:'Finance', kpis:[
+        { name:'Restricted vs unrestricted income ratio', formula:'Unrestricted income / Total income × 100', target:'Target >40% unrestricted; higher ratio means greater operational flexibility', measurement:'Finance system income coding by restriction type', roiType:'Strategic', difficulty:'Easy', aiTitle:'AI grant opportunity matching', aiDesc:'Scans grant databases and funder landscapes to identify restricted funding opportunities aligned to programme priorities and eligibility criteria.' },
+        { name:'Operating reserve level', formula:'Unrestricted reserves / Average monthly operating expenditure', target:'Charity Commission guidance: 3–6 months of operating costs', measurement:'Management accounts — balance sheet and expenditure', roiType:'Financial', difficulty:'Easy', aiTitle:'AI cash flow forecasting', aiDesc:'Integrates income streams, grant schedules and expenditure forecasts to produce a rolling cash position, improving financial resilience planning.' },
+        { name:'Cost per beneficiary served', formula:'Total programme expenditure / Number of beneficiaries served', target:'Track trend and benchmark against sector peers; reduction signals improved efficiency', measurement:'Finance system + programme CRM or case management system', roiType:'Financial', difficulty:'Medium', aiTitle:'AI programme cost efficiency analysis', aiDesc:'Identifies high-cost delivery segments and compares outcomes per pound across programme types to guide resource allocation decisions.' },
+        { name:'Fundraising income diversification index', formula:'1 – Sum of (each income stream share²); higher = more diversified', measurement:'Finance system income by source', target:'Track trend; over-reliance on any single source creates financial resilience risk', roiType:'Strategic', difficulty:'Medium', aiTitle:'AI income stream modelling & scenario planning', aiDesc:'Models the financial impact of changes to each income stream and identifies diversification opportunities aligned to the charity\'s strengths.' },
+        { name:'Month-end close cycle time', formula:'Working days from period end to published management accounts', target:'Target <7 days; faster close enables more timely decision-making', measurement:'Finance close checklist tracker', roiType:'Operational', difficulty:'Easy', aiTitle:'Automated reconciliation & anomaly detection', aiDesc:'AI auto-reconciles high-volume accounts and flags exceptions, reducing manual close tasks and compressing the reporting cycle.' },
+        { name:'Grant utilisation rate', formula:'Grant funds spent against agreed purpose / Total grant received × 100', target:'Target >90% utilisation within grant period; underspend risks funder relationship', measurement:'Finance system grant tracking by restricted fund code', roiType:'Operational', difficulty:'Medium', aiTitle:'AI grant spend monitoring & forecasting', aiDesc:'Tracks restricted fund spend against milestones and forecasts end-of-grant positions, alerting programme managers to utilisation risk early.' },
+      ]},
+      { name:'Programme Delivery', kpis:[
+        { name:'Beneficiary outcome achievement rate', formula:'Beneficiaries achieving defined outcomes at programme completion / Total completing × 100', target:'Set against theory of change; track trend', measurement:'Case management system or programme evaluation data', roiType:'Strategic', difficulty:'Hard', aiTitle:'Predictive case support allocation', aiDesc:'Identifies beneficiaries at outcome risk early in the programme, enabling targeted additional support before it is too late to intervene.' },
+        { name:'Referral conversion rate', formula:'Beneficiaries commencing programme / Total referrals received × 100', target:'Target >70%; low rates indicate access or engagement barriers', measurement:'Programme CRM or intake management system', roiType:'Operational', difficulty:'Medium', aiTitle:'AI referral pathway optimisation', aiDesc:'Analyses drop-out points in the referral-to-engagement journey and identifies interventions most likely to convert referrals into active participants.' },
+        { name:'Programme capacity utilisation', formula:'Beneficiary places filled / Total programme places available × 100', target:'Target >85%; underutilisation signals reach or referral pathway issues', measurement:'Programme management system', roiType:'Operational', difficulty:'Easy', aiTitle:'AI demand forecasting & capacity planning', aiDesc:'Forecasts programme demand by geography and cohort type, enabling proactive capacity adjustment to maintain high utilisation.' },
+        { name:'Staff-to-beneficiary ratio', formula:'Programme staff FTE / Number of active beneficiaries', target:'Track trend; optimising ratio improves both cost efficiency and outcome quality', measurement:'HR system + programme management system', roiType:'Financial', difficulty:'Easy', aiTitle:'AI caseload management & workload optimisation', aiDesc:'Monitors caseload distribution across programme staff and flags imbalances that risk burnout or service quality deterioration.' },
+        { name:'Beneficiary satisfaction score', formula:'Average satisfaction rating from beneficiary feedback survey', target:'Target >4.0/5.0; track trend and by programme type', measurement:'Post-programme survey (paper, digital or telephone)', roiType:'Strategic', difficulty:'Easy', aiTitle:'NLP feedback analysis & service improvement', aiDesc:'Analyses free-text beneficiary feedback to identify recurring service quality themes and surface the highest-priority improvements.' },
+        { name:'Re-referral / re-engagement rate', formula:'Beneficiaries returning for further support / Total previously served × 100', target:'Track trend; interpretation depends on programme model (lower may be better)', measurement:'Case management system historical records', roiType:'Strategic', difficulty:'Medium', aiTitle:'AI early warning & preventive intervention model', aiDesc:'Identifies beneficiaries at risk of requiring further support and triggers preventive outreach before crisis re-engagement is necessary.' },
+      ]},
+    ]
+  },
+
+  // ── COACHING, SEARCH & BUSINESS SERVICES ─────────────────────────────────
+  coaching: {
+    label: 'Coaching, Search & Business Services',
+    desc: '30 KPIs across Business Development, Delivery & Quality, HR & Talent, and Finance — calibrated for professional services firms.',
+    depts: [
+      { name:'Business Development', kpis:[
+        { name:'Proposal win rate', formula:'Proposals accepted / Total proposals submitted × 100', target:'Benchmark 25–40% for professional services; top performers >45%', measurement:'CRM opportunity stage tracking', roiType:'Financial', difficulty:'Easy', aiTitle:'AI-assisted proposal generation & personalisation', aiDesc:'Assembles tailored proposals drawing on past winning submissions, client research and sector-specific framing, reducing prep time and improving relevance.' },
+        { name:'Pipeline conversion velocity', formula:'Average days from qualified opportunity to closed won', target:'Track trend; 10–20% reduction YoY signals more decisive client buying journeys', measurement:'CRM opportunity creation date vs close date', roiType:'Operational', difficulty:'Easy', aiTitle:'AI pipeline prioritisation & next-best-action', aiDesc:'Ranks opportunities by win probability and recommends the most effective next action for each, focusing partner time on the highest-value pursuits.' },
+        { name:'Client referral rate', formula:'New clients sourced from referral / Total new clients × 100', target:'Target >30%; the primary growth engine for most professional services firms', measurement:'CRM new client source field at onboarding', roiType:'Strategic', difficulty:'Easy', aiTitle:'AI relationship intelligence & trigger alerting', aiDesc:'Monitors client news, role changes and business events to surface timely moments for partners to deepen relationships and generate referrals.' },
+        { name:'Average engagement value', formula:'Total fee revenue / Number of client engagements', target:'Track trend; improvement via scope expansion, retainer conversion and rate growth', measurement:'Finance or project management system by engagement', roiType:'Financial', difficulty:'Easy', aiTitle:'AI scope expansion opportunity identification', aiDesc:'Analyses engagement patterns to identify natural extension opportunities and prompt partner conversations at the right point in the delivery cycle.' },
+        { name:'New logo acquisition rate', formula:'New clients won in period / Total active clients at start of period × 100', target:'Track trend; healthy firms typically grow the client base 15–25% annually', measurement:'CRM new client records', roiType:'Financial', difficulty:'Easy', aiTitle:'AI market mapping & prospect identification', aiDesc:'Uses public data, job posting signals and firmographic analysis to identify organisations likely to need your services in the next 90 days.' },
+        { name:'Bid pipeline coverage ratio', formula:'Total qualified pipeline value / Revenue target for period', target:'Target 3:1 coverage; below 2:1 signals business development risk', measurement:'CRM weighted pipeline report', roiType:'Strategic', difficulty:'Easy', aiTitle:'AI market intelligence & opportunity scanning', aiDesc:'Continuously scans tenders, procurement signals and market news to surface new opportunities and maintain adequate pipeline coverage.' },
+      ]},
+      { name:'Delivery & Quality', kpis:[
+        { name:'Client satisfaction score (CSAT / NPS)', formula:'NPS: % Promoters minus % Detractors; CSAT: average rating out of 5', target:'NPS benchmark for coaching / consulting 50–70; CSAT >4.2/5', measurement:'Post-engagement survey automated by email trigger', roiType:'Strategic', difficulty:'Easy', aiTitle:'NLP feedback analysis & theme extraction', aiDesc:'Analyses free-text responses to identify the most common drivers of high and low satisfaction scores, enabling targeted service improvement.' },
+        { name:'On-time delivery rate', formula:'Engagements delivered on agreed schedule / Total engagements × 100', target:'Target >90%; slippage erodes margin and client trust', measurement:'Project management system milestone vs actual dates', roiType:'Operational', difficulty:'Easy', aiTitle:'AI project risk & delay prediction', aiDesc:'Monitors project signals (milestone completion rates, resource availability, scope change frequency) to flag at-risk engagements early.' },
+        { name:'Billable utilisation rate', formula:'Billable hours / Total available hours × 100', target:'Benchmark 65–75% for fee-earners; partners typically 50–60%', measurement:'Timesheeting system (Harvest, ClickUp, etc.)', roiType:'Financial', difficulty:'Easy', aiTitle:'AI resource scheduling & capacity optimisation', aiDesc:'Matches upcoming engagement needs to consultant capacity, skills and preferences to optimise utilisation across the team.' },
+        { name:'Placement success rate (Search)', formula:'Search mandates resulting in placed and retained candidate / Total mandates × 100', target:'Target >85% completion; >90% 12-month retention of placed candidates', measurement:'ATS or search CRM mandate tracking', roiType:'Strategic', difficulty:'Medium', aiTitle:'AI candidate-role matching & market mapping', aiDesc:'Uses NLP and skills graph analysis to identify best-fit candidates from a wider talent pool faster than manual research, improving placement quality.' },
+        { name:'Scope creep rate', formula:'Engagements exceeding agreed budget / Total engagements × 100', target:'Track trend; >20% of engagements over budget signals scoping or governance issues', measurement:'Project accounting system: actual vs quoted', roiType:'Financial', difficulty:'Medium', aiTitle:'AI scope monitoring & margin alert', aiDesc:'Monitors time logged against budget in real time and alerts engagement managers when scope creep begins to erode margin.' },
+        { name:'Client repeat engagement rate', formula:'Clients commissioning a second engagement within 18 months / Total clients × 100', target:'Target >50%; repeat clients are significantly more profitable than new logos', measurement:'CRM engagement history by client', roiType:'Strategic', difficulty:'Easy', aiTitle:'AI next-engagement opportunity detection', aiDesc:'Identifies clients approaching the end of an engagement who show signals of further need, prompting timely commercial conversations.' },
+        { name:'360 coaching outcome achievement (Coaching)', formula:'% of coachees achieving agreed development goals at programme end', target:'Target >80%; track trend by coach and programme type', measurement:'Coaching platform or structured end-of-programme review', roiType:'Strategic', difficulty:'Hard', aiTitle:'AI progress tracking & coach-coachee matching', aiDesc:'Tracks goal progress throughout the coaching engagement and improves future matching of coaches to coachees based on outcome data.' },
+      ]},
+      { name:'HR & Talent', kpis:[
+        { name:'Consultant retention rate', formula:'Consultants active at 12 months / Total at start of period × 100', target:'Target >85%; losing a senior consultant costs £150K+ in replacement', measurement:'HRIS cohort analysis by role and seniority', roiType:'Strategic', difficulty:'Medium', aiTitle:'Attrition risk prediction & career pathing', aiDesc:'Flags consultants at leaving risk based on utilisation, client feedback, tenure and market signals, enabling proactive development conversations.' },
+        { name:'Time-to-productive (new hire)', formula:'Days from start to first independently led client deliverable', target:'Target <90 days for experienced hires; <180 days for graduates', measurement:'Manager assessment + project system first solo assignment date', roiType:'Operational', difficulty:'Medium', aiTitle:'AI-personalised knowledge transfer & onboarding', aiDesc:'Surfaces the most relevant case studies, methodologies and client context for each new hire\'s role, reducing time to independent contribution.' },
+        { name:'Revenue per fee-earner', formula:'Total fee revenue / Number of fee-earning staff', target:'Coaching benchmark £120K–£250K; Search £200K–£400K per fee-earner', measurement:'Finance system + HR headcount by role type', roiType:'Financial', difficulty:'Easy', aiTitle:'AI market intelligence & pricing benchmarking', aiDesc:'Tracks competitive rate movements to ensure fee structures reflect current market value and maximise revenue per engagement.' },
+        { name:'Fee-earner to support ratio', formula:'Fee-earning headcount / Support staff headcount', target:'Benchmark 4:1 to 6:1; track trend', measurement:'HR system headcount by role classification', roiType:'Financial', difficulty:'Easy', aiTitle:'AI admin & support task automation', aiDesc:'Automates scheduling, document preparation, research, formatting and reporting tasks, enabling support staff to serve a higher ratio of fee-earners.' },
+        { name:'Training & CPD completion rate', formula:'Consultants completing mandatory CPD / Total required × 100', target:'Target 100%; professional body requirements create compliance risk if not met', measurement:'LMS or CPD tracking system', roiType:'Operational', difficulty:'Easy', aiTitle:'AI-personalised CPD pathway assignment', aiDesc:'Assigns CPD content based on role, specialism and professional body requirements, tracking completion and sending automated reminders.' },
+        { name:'Diversity of hire rate', formula:'Hires from underrepresented groups / Total hires × 100', target:'Track trend; improving diversity is both a strategic imperative and a client expectation', measurement:'HRIS demographic data at hire', roiType:'Strategic', difficulty:'Medium', aiTitle:'AI bias-reduced screening & diverse sourcing', aiDesc:'Anonymises applications during initial screening and actively sources from diverse talent pools to reduce structural bias in hiring.' },
+      ]},
+      { name:'Finance', kpis:[
+        { name:'Profit margin per engagement', formula:'(Engagement revenue – Direct costs) / Engagement revenue × 100', target:'Target >40% gross margin per engagement; track by service line', measurement:'Project accounting or finance system by engagement code', roiType:'Financial', difficulty:'Medium', aiTitle:'AI engagement profitability forecasting', aiDesc:'Predicts end-of-engagement margin at the outset based on scope, team composition and delivery risk, enabling early pricing or resourcing corrections.' },
+        { name:'Debtors days (DSO)', formula:'(Accounts receivable / Revenue) × days in period', target:'Target <30 days; professional services benchmark 35–50 days', measurement:'Accounting system aged debtor report', roiType:'Financial', difficulty:'Easy', aiTitle:'AI invoice chasing & collections automation', aiDesc:'Automates payment reminder sequences tailored by client relationship tier, reducing manual chasing effort and improving cash collection.' },
+        { name:'Revenue concentration risk', formula:'Top 3 clients\' revenue / Total revenue × 100', target:'Target <40%; above 50% signals dangerous client dependency', measurement:'Finance system by client', roiType:'Strategic', difficulty:'Easy', aiTitle:'AI business development targeting for diversification', aiDesc:'Identifies the sectors and client profiles most likely to reduce revenue concentration and prioritises BD activity accordingly.' },
+        { name:'Recurring revenue ratio', formula:'Retainer and recurring fees / Total revenue × 100', target:'Track trend; target >30% recurring to improve revenue predictability', measurement:'Finance system by engagement type', roiType:'Strategic', difficulty:'Easy', aiTitle:'AI retainer conversion opportunity identification', aiDesc:'Identifies project clients with high retainer conversion potential based on engagement volume, relationship depth and strategic fit.' },
+        { name:'Revenue forecast accuracy', formula:'1 – (|Forecast – Actual| / Actual) at period end', target:'Target >90%; most professional services firms operate at 70–80%', measurement:'CRM weighted pipeline vs finance closed revenue', roiType:'Strategic', difficulty:'Hard', aiTitle:'ML-based revenue forecasting', aiDesc:'Predictive model trained on pipeline history, deal characteristics and seasonal patterns to replace subjective partner-led forecasting.' },
+        { name:'Operating expense ratio', formula:'Total operating expenses / Total revenue × 100', target:'Track trend; benchmark varies by firm structure; target consistent reduction', measurement:'P&L from finance system by cost category', roiType:'Financial', difficulty:'Easy', aiTitle:'AI spend analytics & overhead optimisation', aiDesc:'Categorises operating spend and identifies the highest-impact reduction opportunities across facilities, technology and support costs.' },
+      ]},
+    ]
+  },
+
+  // ── INSURANCE ─────────────────────────────────────────────────────────────
+  insurance: {
+    label: 'Insurance',
+    desc: '30 KPIs across Underwriting & Risk, Claims, Sales & Distribution, HR, and Finance — calibrated for insurance organisations.',
+    depts: [
+      { name:'Underwriting & Risk', kpis:[
+        { name:'Loss ratio', formula:'Net claims incurred / Net premiums earned × 100', target:'Target <60%; combined ratio target <95%', measurement:'Actuarial or finance management reporting system', roiType:'Financial', difficulty:'Medium', aiTitle:'AI-enhanced risk pricing model', aiDesc:'Augments actuarial pricing with ML models trained on telematics, property data and behavioural signals to improve risk selection and pricing accuracy.' },
+        { name:'Policy retention rate', formula:'Policies renewed / Total policies up for renewal × 100', target:'Benchmark 75–85%; target >80% for personal lines', measurement:'Policy administration system renewal tracking', roiType:'Financial', difficulty:'Easy', aiTitle:'Churn prediction & proactive retention', aiDesc:'Scores policies at renewal risk based on price sensitivity, claims history and competitor pricing signals, enabling targeted retention offers before cancellation.' },
+        { name:'Quote-to-bind conversion rate', formula:'Policies bound / Quotes issued × 100', target:'Personal lines benchmark 30–50%; commercial 20–35%', measurement:'Policy admin or CRM system', roiType:'Financial', difficulty:'Easy', aiTitle:'AI real-time competitive pricing intelligence', aiDesc:'Monitors competitor rate movements and surfaces pricing recommendations to keep quotes competitive without sacrificing technical adequacy.' },
+        { name:'New business premium growth rate', formula:'(New business premium this period – Prior period) / Prior period × 100', target:'Track trend YoY; benchmark varies by line and market cycle', measurement:'Policy admin system new business flag', roiType:'Financial', difficulty:'Easy', aiTitle:'AI prospect scoring & broker relationship management', aiDesc:'Scores inbound submissions by conversion likelihood and strategic fit, enabling underwriting and sales teams to prioritise the best opportunities.' },
+        { name:'Underwriting expense ratio', formula:'Underwriting expenses / Net earned premium × 100', target:'Track trend; reduction signals process and technology efficiency improvements', measurement:'Finance management accounts by line of business', roiType:'Financial', difficulty:'Medium', aiTitle:'AI underwriting workflow automation', aiDesc:'Automates data gathering, risk scoring and documentation for standard risks, reducing underwriter time per submission and improving throughput.' },
+        { name:'Risk quality mix index', formula:'% of new business written in target risk tiers / Total new business written', target:'Track trend; improving mix signals better risk selection and distribution alignment', measurement:'Underwriting system risk scoring data', roiType:'Strategic', difficulty:'Hard', aiTitle:'AI risk appetite monitoring & portfolio analytics', aiDesc:'Continuously monitors the composition of the in-force book against risk appetite parameters, alerting underwriters to concentration or quality drift.' },
+      ]},
+      { name:'Claims', kpis:[
+        { name:'Average claims settlement time', formula:'Average days from FNOL to settlement by claim type', target:'Simple claims target <10 days; complex <60 days; track by peril', measurement:'Claims management system FNOL-to-close timestamps', roiType:'Operational', difficulty:'Easy', aiTitle:'AI claims triage & straight-through processing', aiDesc:'Automatically assesses low-complexity claims against policy terms and settles them without human intervention, dramatically reducing settlement time.' },
+        { name:'Claims leakage rate', formula:'Overpaid or incorrectly settled claim value / Total claims paid × 100', target:'Target <3%; industry average 10–15%', measurement:'Claims audit process or specialist leakage review', roiType:'Financial', difficulty:'Hard', aiTitle:'AI claims validation & leakage detection', aiDesc:'Cross-references claim details against policy, third-party data and historical patterns to flag anomalies for review before settlement.' },
+        { name:'Customer satisfaction at claims (CSAT)', formula:'Average satisfaction score from post-settlement survey', target:'Target >4.0/5.0; claims experience is the primary NPS driver in insurance', measurement:'Post-settlement survey automated by claims system trigger', roiType:'Strategic', difficulty:'Easy', aiTitle:'AI-powered claims communication & proactive updates', aiDesc:'Automates personalised status updates to claimants throughout the process, reducing inbound calls and improving overall experience.' },
+        { name:'Fraud detection rate', formula:'Fraudulent claims identified / Total estimated fraudulent claims × 100', target:'Target >80% detection; fraud costs UK insurers over £1B annually', measurement:'Counter-fraud system or specialist audit data', roiType:'Financial', difficulty:'Hard', aiTitle:'ML fraud scoring & network analysis', aiDesc:'Applies ML models and social network analysis to identify organised fraud rings and suspicious patterns that rule-based systems consistently miss.' },
+        { name:'Claims handling cost per claim', formula:'Total claims handling expense / Number of claims handled', target:'Track trend by claim type; reduction reflects automation and process efficiency', measurement:'Finance + claims system combined reporting', roiType:'Financial', difficulty:'Medium', aiTitle:'AI claims automation & handler productivity tools', aiDesc:'Automates routine claims tasks (data entry, document classification, reserve setting for standard losses) to reduce cost per claim handled.' },
+        { name:'Reopened claims rate', formula:'Claims reopened after initial closure / Total claims closed × 100', target:'Target <5%; high rates signal inadequate initial investigation or settlement', measurement:'Claims management system reopen flag', roiType:'Operational', difficulty:'Easy', aiTitle:'AI claims adequacy assessment', aiDesc:'Assesses the adequacy of proposed settlements against claim characteristics and policy terms before closure, reducing the likelihood of reopening.' },
+        { name:'Large loss early identification rate', formula:'Claims flagged as large loss potential within 30 days of FNOL / Total large losses × 100', target:'Target >85%; early identification enables better reserving and vendor management', measurement:'Claims management system severity flag vs final settlement value', roiType:'Strategic', difficulty:'Hard', aiTitle:'AI severity prediction at FNOL', aiDesc:'Predicts large loss potential at first notification using claim characteristics, location data and historical severity patterns for immediate escalation.' },
+      ]},
+      { name:'Sales & Distribution', kpis:[
+        { name:'Cross-sell & upsell rate', formula:'Customers holding >1 product / Total customers × 100', target:'Target >25%; each additional product increases retention by 10–15pp', measurement:'Policy admin system by customer account', roiType:'Financial', difficulty:'Medium', aiTitle:'AI next-best-product recommendation', aiDesc:'Identifies the most relevant adjacent product for each customer based on risk profile, life stage and existing cover, surfacing opportunities at renewal.' },
+        { name:'Broker / intermediary satisfaction score', formula:'Average satisfaction rating from broker survey or NPS', target:'Target NPS >30; track trend by distribution channel', measurement:'Annual or bi-annual broker satisfaction survey', roiType:'Strategic', difficulty:'Medium', aiTitle:'AI quote turnaround & broker portal automation', aiDesc:'Reduces quote response time and automates routine broker queries, improving the broker experience and winning more panel positions.' },
+        { name:'Digital self-service adoption rate', formula:'Policies quoted, bound or serviced via digital channel / Total × 100', target:'Track trend; digital adoption reduces cost-to-serve by 40–60%', measurement:'Digital platform analytics + policy admin system', roiType:'Operational', difficulty:'Easy', aiTitle:'AI-guided digital journey & chatbot support', aiDesc:'Guides customers through complex product journeys online and handles routine service queries automatically, increasing digital completion rates.' },
+        { name:'Time-to-quote (commercial lines)', formula:'Average hours from submission received to indicative quote issued', target:'Target <4 hours for standard commercial risks; <48 hours for complex', measurement:'Underwriting system submission-to-quote timestamps', roiType:'Operational', difficulty:'Easy', aiTitle:'AI submission triage & data pre-population', aiDesc:'Automatically extracts and validates data from broker submissions, pre-populates underwriting fields and flags information gaps before the underwriter reviews.' },
+        { name:'Renewal conversion uplift from intervention', formula:'Renewal rate for accounts receiving AI-targeted retention intervention vs control group', target:'Target >5pp uplift over baseline renewal rate', measurement:'A/B test via policy admin system + CRM', roiType:'Financial', difficulty:'Hard', aiTitle:'AI retention intervention personalisation', aiDesc:'Determines the optimal retention offer, timing and channel for each renewing policy based on price elasticity and relationship signals.' },
+        { name:'Intermediary panel growth rate', formula:'New intermediaries onboarded in period / Total active intermediaries at start × 100', target:'Track trend; distribution breadth drives long-term new business volume', measurement:'Distributor management system or CRM', roiType:'Strategic', difficulty:'Easy', aiTitle:'AI intermediary prospecting & onboarding automation', aiDesc:'Identifies high-potential intermediaries aligned to target markets and automates the onboarding workflow to accelerate time-to-active.' },
+      ]},
+      { name:'HR', kpis:[
+        { name:'Specialist staff retention rate (underwriters, claims handlers)', formula:'Specialist staff active at 12 months / Total at start × 100', target:'Target >88%; specialist roles have long replacement lead times and high replacement cost', measurement:'HRIS cohort analysis by role type', roiType:'Strategic', difficulty:'Medium', aiTitle:'Attrition risk prediction for specialist roles', aiDesc:'Monitors engagement, workload, market compensation signals and tenure to flag at-risk specialists for proactive retention action.' },
+        { name:'Training & CPD compliance rate (FCA / CII)', formula:'Staff completing mandatory FCA / professional body CPD / Total required × 100', target:'Target 100%; non-compliance carries significant regulatory risk with FCA', measurement:'LMS completion records by role and requirement', roiType:'Operational', difficulty:'Easy', aiTitle:'AI-personalised regulatory training pathways', aiDesc:'Assigns and tracks mandatory CPD and regulatory training by role and competency level, automating escalation for non-completion.' },
+        { name:'Time-to-hire for specialist roles', formula:'Average days from requisition open to offer accepted for underwriters / claims specialists', target:'Track trend; specialist hiring is significantly harder than generalist — target <60 days', measurement:'ATS timestamps by role category', roiType:'Operational', difficulty:'Medium', aiTitle:'AI talent market mapping & specialist sourcing', aiDesc:'Uses market data and professional network signals to identify and proactively engage specialist talent before vacancies become critical.' },
+        { name:'Underwriter productivity (submissions per FTE)', formula:'Total submissions assessed / Underwriting FTE in period', target:'Track trend; improvement reflects process efficiency and tooling quality', measurement:'Underwriting system submission logs + HR headcount', roiType:'Financial', difficulty:'Easy', aiTitle:'AI underwriting decision support tools', aiDesc:'Provides underwriters with instant risk data aggregation, comparable risks and suggested terms, increasing throughput without reducing quality.' },
+        { name:'Employee engagement score', formula:'Average engagement score from staff survey (scale 1–10)', target:'Target >7.5/10; track trend by team and function', measurement:'Annual or pulse engagement survey', roiType:'Strategic', difficulty:'Easy', aiTitle:'AI sentiment analysis & early engagement alerting', aiDesc:'Analyses patterns in pulse survey data and internal communication signals to surface engagement risk at team level between formal surveys.' },
+        { name:'Cost-per-hire', formula:'Total recruiting cost / Total hires in period', target:'Track trend; specialist insurance roles have higher CPH — focus on reducing agency dependency', measurement:'Finance + HR: agency fees, job board spend, recruiter time', roiType:'Financial', difficulty:'Medium', aiTitle:'AI direct sourcing & skills-based matching', aiDesc:'Builds and maintains a direct talent pipeline for specialist roles using AI-driven skills matching, reducing reliance on external agencies.' },
+      ]},
+      { name:'Finance', kpis:[
+        { name:'Combined operating ratio (COR)', formula:'(Claims costs + Expenses) / Net earned premium × 100', target:'Target <95%; above 100% means underwriting loss', measurement:'Actuarial or finance management accounts', roiType:'Financial', difficulty:'Medium', aiTitle:'AI expense optimisation & process automation', aiDesc:'Identifies the highest-cost administrative processes and automates them, reducing the expense ratio component of the COR.' },
+        { name:'Investment return on float', formula:'Investment income / Average investable assets × 100', target:'Track vs benchmark; dependent on investment strategy and market conditions', measurement:'Investment management system or finance reports', roiType:'Financial', difficulty:'Hard', aiTitle:'AI portfolio optimisation & duration matching', aiDesc:'Optimises the investment portfolio against liability duration and regulatory capital requirements, maximising risk-adjusted return on the float.' },
+        { name:'Solvency capital coverage ratio', formula:'Eligible own funds / Solvency Capital Requirement (SCR) × 100', target:'Target >150% SCR; regulatory minimum 100% under Solvency II', measurement:'Actuarial capital model (internal or standard formula)', roiType:'Strategic', difficulty:'Hard', aiTitle:'AI-enhanced capital modelling & stress testing', aiDesc:'Augments the capital model with real-time risk factor updates and scenario analysis, improving the accuracy and timeliness of capital adequacy reporting.' },
+        { name:'Premium income forecast accuracy', formula:'1 – (|Forecast – Actual| / Actual) at period end', target:'Target >90% accuracy; most insurers operate at 75–85%', measurement:'Finance system forecast vs actual premium ledger', roiType:'Strategic', difficulty:'Hard', aiTitle:'ML-based premium income forecasting', aiDesc:'Predictive model trained on renewal patterns, pipeline data and market signals to replace spreadsheet-based premium forecasting.' },
+        { name:'Reserving adequacy ratio', formula:'(Prior year reserves – Actual development) / Prior year reserves × 100', target:'Track trend; sustained under-reserving signals pricing or estimation issues', measurement:'Actuarial reserve development analysis', roiType:'Financial', difficulty:'Hard', aiTitle:'AI reserving support & development pattern analysis', aiDesc:'Analyses claims development patterns by line and peril to identify emerging reserving inadequacy earlier in the development tail.' },
+        { name:'Reinsurance recovery rate', formula:'Reinsurance recoveries received / Total reinsurance claims submitted × 100', target:'Target >95%; recovery gaps signal contract management or documentation issues', measurement:'Reinsurance management system or finance claims records', roiType:'Financial', difficulty:'Medium', aiTitle:'AI reinsurance contract matching & recovery optimisation', aiDesc:'Automates the matching of eligible claims to reinsurance contracts and identifies recovery opportunities that manual processes routinely miss.' },
+      ]},
+    ]
+  }
+};
+
+// ── HELPERS ────────────────────────────────────────────────────────────────
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function validateEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+function roiClass(r){ return r==='Financial'?'badge-roi-fin':r==='Operational'?'badge-roi-ops':'badge-roi-str'; }
+function diffClass(d){ return d==='Easy'?'badge-diff-easy':d==='Medium'?'badge-diff-med':'badge-diff-hard'; }
+
+// ── FORM VALIDATION ────────────────────────────────────────────────────────
+function checkForm(){
+  var ok = validateEmail(document.getElementById('fEmail').value.trim()) && document.getElementById('fIndustry').value !== '';
+  document.getElementById('goBtn').disabled = !ok;
+}
+document.getElementById('fEmail').addEventListener('input', function(){
+  var hint = document.getElementById('emailHint');
+  if(this.value && !validateEmail(this.value.trim())){ this.classList.add('error'); hint.style.display='block'; }
+  else{ this.classList.remove('error'); hint.style.display='none'; }
+  checkForm();
+});
+document.getElementById('fIndustry').addEventListener('change', checkForm);
+
+// ── START ──────────────────────────────────────────────────────────────────
+function startTool(){
+  var email = document.getElementById('fEmail').value.trim();
+  var name  = document.getElementById('fName').value.trim();
+  var co    = document.getElementById('fCompany').value.trim();
+  var ind   = document.getElementById('fIndustry').value;
+  if(!validateEmail(email)||!ind) return;
+
+  var data = INDUSTRIES[ind];
+  document.getElementById('kpiTitle').textContent = data.label;
+  document.getElementById('kpiMeta').textContent  = data.desc;
+
+  var pill = name || email;
+  if(name && co) pill = name + ' — ' + co;
+  document.getElementById('attendeePill').textContent = pill;
+  document.getElementById('actionAttendee').innerHTML =
+    '<strong>'+esc(name||email)+'</strong>'+(co?' &mdash; '+esc(co):'')+' &nbsp;|&nbsp; '+esc(data.label);
+
+  // Build KPI content — cards + notes box after each dept
+  var html = '';
+  data.depts.forEach(function(dept, di){
+    html += '<div class="dept-section">';
+    html += '<div class="dept-header"><div class="dept-dot"></div>';
+    html += '<span class="dept-label">'+esc(dept.name)+'</span>';
+    html += '<span class="dept-count">&nbsp;'+dept.kpis.length+' KPIs</span></div>';
+    html += '<div class="kpi-grid">';
+    dept.kpis.forEach(function(k, ki){
+      var id = 'kc_'+di+'_'+ki;
+      html += '<div class="kpi-card" id="'+id+'" onclick="toggleCard(\''+id+'\')">';
+      html += '<div class="kpi-card-top"><span class="kpi-name">'+esc(k.name)+'</span><span class="kpi-chevron">▼</span></div>';
+      html += '<div class="kpi-badges">';
+      html += '<span class="badge '+roiClass(k.roiType)+'">'+esc(k.roiType)+'</span>';
+      html += '<span class="badge '+diffClass(k.difficulty)+'">'+esc(k.difficulty)+' to measure</span>';
+      html += '</div>';
+      html += '<div class="kpi-details">';
+      html += '<div class="det-row"><span class="det-label">Formula</span><span class="det-val strong">'+esc(k.formula)+'</span></div>';
+      html += '<div class="det-row"><span class="det-label">Benchmark</span><span class="det-val">'+esc(k.target)+'</span></div>';
+      html += '<div class="det-row"><span class="det-label">Measure via</span><span class="det-val">'+esc(k.measurement)+'</span></div>';
+      html += '<div class="ai-row"><div class="ai-row-lbl">AI Initiative</div>';
+      html += '<div class="ai-row-body"><strong>'+esc(k.aiTitle)+':</strong> '+esc(k.aiDesc)+'</div></div>';
+      html += '</div></div>';
+    });
+    html += '</div>'; // kpi-grid
+
+    // Notes box after each function
+    html += '<div class="fn-notes">';
+    html += '<div class="fn-notes-title">✏ Your notes — '+esc(dept.name)+'</div>';
+    html += '<p class="fn-notes-hint">Which of these KPIs does your organisation currently track? Which are gaps? What AI initiatives are most relevant to your context?</p>';
+    html += '<textarea class="fn-notes-area" id="notes_'+di+'" placeholder="Add your notes here…"></textarea>';
+    html += '</div>';
+
+    html += '</div>'; // dept-section
+  });
+  document.getElementById('kpiContent').innerHTML = html;
+
+  // Reset submit button
+  document.getElementById('submitStatus').textContent = '';
+  var sb = document.getElementById('submitBtn');
+  sb.disabled = false; sb.textContent = '↑ Submit to Google Sheets'; sb.style.background = '';
+
+  document.getElementById('page-landing').style.display = 'none';
+  document.getElementById('page-kpi').style.display = 'flex';
+  window.scrollTo(0,0);
+}
+
+function goBack(){
+  document.getElementById('page-kpi').style.display = 'none';
+  document.getElementById('page-landing').style.display = 'flex';
+  window.scrollTo(0,0);
+}
+
+function toggleCard(id){
+  document.getElementById(id).classList.toggle('open');
+}
+
+// ── COLLECT NOTES ──────────────────────────────────────────────────────────
+function collectNotes(){
+  var ind  = document.getElementById('fIndustry').value;
+  var data = INDUSTRIES[ind];
+  var out  = [];
+  data.depts.forEach(function(dept, di){
+    var ta   = document.getElementById('notes_'+di);
+    var text = ta ? ta.value.trim() : '';
+    out.push(dept.name + ': ' + (text || '(no notes)'));
+  });
+  return out;
+}
+
+// ── SAVE / REPORT ──────────────────────────────────────────────────────────
+function saveReport(){
+  var email = document.getElementById('fEmail').value.trim();
+  var name  = document.getElementById('fName').value.trim();
+  var co    = document.getElementById('fCompany').value.trim();
+  var ind   = document.getElementById('fIndustry').value;
+  var data  = INDUSTRIES[ind];
+  var notes = collectNotes();
+  var date  = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+
+  var kpiRows = '';
+  data.depts.forEach(function(dept){
+    dept.kpis.forEach(function(k){
+      kpiRows += '<tr>'+
+        '<td style="padding:8px 11px;border-bottom:1px solid #e8eef5;font-weight:600;color:#0A3B85;white-space:nowrap;">'+esc(dept.name)+'</td>'+
+        '<td style="padding:8px 11px;border-bottom:1px solid #e8eef5;">'+esc(k.name)+'</td>'+
+        '<td style="padding:8px 11px;border-bottom:1px solid #e8eef5;font-size:12px;color:#5a6a82;">'+esc(k.formula)+'</td>'+
+        '<td style="padding:8px 11px;border-bottom:1px solid #e8eef5;font-size:12px;">'+esc(k.target)+'</td>'+
+        '<td style="padding:8px 11px;border-bottom:1px solid #e8eef5;font-size:12px;color:#0A3B85;">'+esc(k.aiTitle)+'</td>'+
+      '</tr>';
+    });
+  });
+
+  var notesRows = notes.map(function(n){
+    var colonIdx = n.indexOf(': ');
+    var fnName   = colonIdx > -1 ? n.substring(0, colonIdx) : n;
+    var fnNotes  = colonIdx > -1 ? n.substring(colonIdx + 2) : '';
+    var isEmpty  = !fnNotes || fnNotes === '(no notes)';
+    return '<tr>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e8eef5;font-weight:700;color:#0A3B85;">'+esc(fnName)+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e8eef5;font-size:13px;">'+(isEmpty?'<em style="color:#aaa">No notes entered</em>':esc(fnNotes).replace(/\n/g,'<br>'))+'</td>'+
+    '</tr>';
+  }).join('');
+
+  var report = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">'+
+    '<title>KPI Framework — '+esc(name||email)+'</title>'+
+    '<style>body{font-family:Arial,sans-serif;margin:40px;color:#051C2B;}'+
+    'h1{color:#0A3B85;font-size:24px;margin-bottom:4px;}'+
+    'h2{color:#00A3AD;font-size:14px;font-weight:400;margin-bottom:20px;}'+
+    'h3{color:#0A3B85;font-size:15px;margin:28px 0 10px;}'+
+    '.meta{font-size:13px;color:#5a6a82;padding:12px 16px;background:#f4f7fb;border-left:4px solid #0A3B85;border-radius:4px;margin-bottom:24px;}'+
+    'table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px;}'+
+    'th{background:#0A3B85;color:#fff;padding:9px 11px;text-align:left;font-size:12px;}'+
+    '.footer{margin-top:36px;padding-top:12px;border-top:1px solid #e0e6f0;font-size:11px;color:#999;}'+
+    '@media print{body{margin:20px;}}'+
+    '</style></head><body>'+
+    '<h1>KPI Framework — AI Initiative Opportunities</h1>'+
+    '<h2>'+esc(data.label)+'</h2>'+
+    '<div class="meta">'+
+      '<strong>Name:</strong> '+esc(name||'Not provided')+
+      (co?' &nbsp;|&nbsp; <strong>Organisation:</strong> '+esc(co):'')+
+      ' &nbsp;|&nbsp; <strong>Email:</strong> '+esc(email)+
+      '<br><strong>Industry:</strong> '+esc(data.label)+
+      ' &nbsp;|&nbsp; <strong>Date:</strong> '+date+
+    '</div>'+
+    '<h3>KPI Reference List</h3>'+
+    '<table><thead><tr>'+
+      '<th style="width:100px">Function</th>'+
+      '<th style="width:150px">KPI</th>'+
+      '<th style="width:170px">Formula</th>'+
+      '<th style="width:160px">Benchmark</th>'+
+      '<th>AI Initiative</th>'+
+    '</tr></thead><tbody>'+kpiRows+'</tbody></table>'+
+    '<h3>Session Notes by Function</h3>'+
+    '<table><thead><tr>'+
+      '<th style="width:140px">Function</th>'+
+      '<th>My Notes</th>'+
+    '</tr></thead><tbody>'+notesRows+'</tbody></table>'+
+    '<div class="footer">&copy; Andrew Gaule &amp; Denis Bidinost &nbsp;|&nbsp; Henley Business School, University of Reading</div>'+
+    '</body></html>';
+
+  var win = window.open('','_blank');
+  win.document.write(report);
+  win.document.close();
+  win.focus();
+  setTimeout(function(){ win.print(); }, 600);
+}
+
+// ── SUBMIT TO GOOGLE SHEETS ────────────────────────────────────────────────
+function submitToSheets(){
+  if(APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE'){
+    var st = document.getElementById('submitStatus');
+    st.className = 'submit-status err';
+    st.textContent = 'Google Sheets not yet connected. Please contact your programme director.';
+    return;
+  }
+  var email = document.getElementById('fEmail').value.trim();
+  var name  = document.getElementById('fName').value.trim();
+  var co    = document.getElementById('fCompany').value.trim();
+  var ind   = document.getElementById('fIndustry').value;
+  var data  = INDUSTRIES[ind];
+  var notes = collectNotes();
+
+  var payload = { email:email, name:name, company:co, industry:data.label, date:new Date().toISOString(), notes:notes };
+
+  var btn = document.getElementById('submitBtn');
+  var st  = document.getElementById('submitStatus');
+  btn.disabled = true; btn.textContent = 'Submitting…'; st.textContent = ''; st.className = 'submit-status';
+
+  fetch(APPS_SCRIPT_URL,{
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  }).then(function(){
+    btn.disabled = false; btn.textContent = '✓ Submitted'; btn.style.background = '#00875a';
+    st.className = 'submit-status ok';
+    st.textContent = 'Your details and notes have been submitted successfully.';
+  }).catch(function(){
+    btn.disabled = false; btn.textContent = '↑ Submit to Google Sheets';
+    st.className = 'submit-status err';
+    st.textContent = 'Submission failed. Please try again or contact your programme director.';
+  });
+}
+</script>
+</body>
+</html>
